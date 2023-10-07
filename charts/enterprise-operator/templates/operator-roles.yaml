@@ -10,10 +10,9 @@ imagePullSecrets:
   - name: {{ .Values.registry.imagePullSecrets }}
 {{- end }}
 
+---
 {{- $watchNamespace := "*" -}}
 {{- $roleScope := "ClusterRole" -}}
-
----
 kind: {{ $roleScope }}
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:

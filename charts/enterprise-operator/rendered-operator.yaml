@@ -4,7 +4,9 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: mongodb-operator
-  namespace: mongodb-operator---
+  namespace: mongodb-operator
+---
+# Source: operator/templates/operator-roles.yaml
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
