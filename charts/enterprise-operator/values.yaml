@@ -50,6 +50,7 @@ operator:
     tlsSecretRef: ''
 
   replicas: 1
+  watchNamespace: "*"
 
 ## Database
 database:

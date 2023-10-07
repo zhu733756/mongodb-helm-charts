@@ -1,0 +1,1 @@
+cat images.txt | awk -F: '{printf "./pull-image.sh %s %s\n",  $1, $2}' | sed 's/quay.io\/mongodb\///g' | xargs -I {} bash -c {}
