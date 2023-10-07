@@ -164,7 +164,7 @@ spec:
         runAsUser: 2000
       containers:
         - name: mongodb-operator
-          image: "custom.repo/data/mongodb-operator-ubi:1.22.0"
+          image: "custom.repo/data/mongodb-operator-ubi:1.22.0-amd64"
           imagePullPolicy: Always
           args:
             - -watch-resource=mongodb
@@ -198,25 +198,25 @@ spec:
             - name: INIT_DATABASE_IMAGE_REPOSITORY
               value: custom.repo/data/mongodb-init-database-ubi
             - name: INIT_DATABASE_VERSION
-              value: 1.0.19
+              value: 1.0.19-amd64
             - name: DATABASE_VERSION
-              value: 2.0.2
+              value: 2.0.2-amd64
             # Ops Manager
             - name: OPS_MANAGER_IMAGE_REPOSITORY
               value: custom.repo/data/mongodb-ops-manager-ubi
             - name: INIT_OPS_MANAGER_IMAGE_REPOSITORY
               value: custom.repo/data/mongodb-init-ops-manager-ubi
             - name: INIT_OPS_MANAGER_VERSION
-              value: 1.0.12
+              value: 1.0.12-amd64
             # AppDB
             - name: INIT_APPDB_IMAGE_REPOSITORY
               value: custom.repo/data/mongodb-init-appdb-ubi
             - name: INIT_APPDB_VERSION
-              value: 1.0.18
+              value: 1.0.18-amd64
             - name: OPS_MANAGER_IMAGE_PULL_POLICY
               value: Always
             - name: AGENT_IMAGE
-              value: "custom.repo/data/mongodb-agent-ubi:12.0.25.7724-1"
+              value: "custom.repo/data/mongodb-agent-ubi:12.0.25.7724-1-amd64"
             - name: MONGODB_IMAGE
               value: mongodb-server
             - name: MONGODB_REPO_URL
