@@ -1,0 +1,184 @@
+---
+# Source: community-operator/templates/database_roles.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: mongodb-database
+  namespace:  mongodb-operator
+---
+# Source: community-operator/templates/operator_roles.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: mongodb-operator
+  namespace: mongodb-operator
+---
+# Source: community-operator/templates/database_roles.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: mongodb-database
+  namespace:  mongodb-operator 
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - get
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+    verbs:
+      - patch
+      - delete
+      - get
+---
+# Source: community-operator/templates/operator_roles.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind:  ClusterRole 
+metadata:
+  name: mongodb-operator
+  namespace: mongodb-operator
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  - services
+  - configmaps
+  - secrets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - statefulsets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - mongodbcommunity.mongodb.com
+  resources:
+  - mongodbcommunity
+  - mongodbcommunity/status
+  - mongodbcommunity/spec
+  - mongodbcommunity/finalizers
+  verbs:
+  - get
+  - patch
+  - list
+  - update
+  - watch
+---
+# Source: community-operator/templates/database_roles.yaml
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: mongodb-database
+subjects:
+  - kind: ServiceAccount
+    name: mongodb-database
+    namespace:  mongodb-operator 
+roleRef:
+  kind: ClusterRole
+  name: mongodb-database
+  apiGroup: rbac.authorization.k8s.io
+---
+# Source: community-operator/templates/operator_roles.yaml
+kind:  ClusterRoleBinding 
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: mongodb-operator
+  namespace: mongodb-operator
+subjects:
+- kind: ServiceAccount
+  name: mongodb-operator
+  namespace: mongodb-operator
+roleRef:
+  kind:  ClusterRole 
+  name: mongodb-operator
+  apiGroup: rbac.authorization.k8s.io
+---
+# Source: community-operator/templates/operator.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    email: support@mongodb.com
+  labels:
+    owner: mongodb
+  name: mongodb-operator
+  namespace: mongodb-operator
+spec:
+  replicas:  1
+  selector:
+    matchLabels:
+      name: mongodb-operator
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        name: mongodb-operator
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: name
+                    operator: In
+                    values:
+                      - mongodb-operator
+              topologyKey: kubernetes.io/hostname
+      containers:
+        - command:
+            - /usr/local/bin/entrypoint
+          env:
+            - name: WATCH_NAMESPACE
+              value: "*"
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: OPERATOR_NAME
+              value: mongodb-operator
+            - name: AGENT_IMAGE
+              value: "custom.repo/data/mongodb-agent:12.0.25.7724-1-amd64"
+            - name: VERSION_UPGRADE_HOOK_IMAGE
+              value: "custom.repo/data/mongodb-operator-version-upgrade-post-start-hook:1.0.7-amd64"
+            - name: READINESS_PROBE_IMAGE
+              value: "custom.repo/data/mongodb-readinessprobe:1.0.15-amd64"
+            - name: MONGODB_IMAGE
+              value: data/mongo
+            - name: MONGODB_REPO_URL
+              value: custom.repo
+          image: custom.repo/data/mongodb-operator:0.8.2-amd64
+          imagePullPolicy: Always
+          name: mongodb-operator
+          resources:
+            limits:
+              cpu: 1100m
+              memory: 1Gi
+            requests:
+              cpu: 500m
+              memory: 200Mi
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 2000
+      serviceAccountName: mongodb-operator

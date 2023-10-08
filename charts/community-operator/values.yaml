@@ -18,7 +18,7 @@ operator:
   version: 0.8.2
 
   # Uncomment this line to watch all namespaces
-  # watchNamespace: "*"
+  watchNamespace: "*"
 
   # Resources allocated to Operator Pod
   resources:
@@ -66,8 +66,8 @@ readinessProbe:
   name: mongodb-kubernetes-readinessprobe
   version: 1.0.15
 mongodb:
-  name: mongo
-  repo: docker.io
+  name: data/mongo
+  repo: custom.repo
 
 registry:
   agent: quay.io/mongodb

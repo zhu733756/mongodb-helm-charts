@@ -7,7 +7,7 @@ metadata:
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
+kind: ClusterRole
 metadata:
   name: {{ .Values.database.name }}
   namespace: {{ if .Values.database.namespace }} {{ .Values.database.namespace }} {{ else }} {{ .Release.Namespace }} {{ end }}
@@ -28,15 +28,15 @@ rules:
       - get
 
 ---
-kind: RoleBinding
+kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: {{ .Values.database.name }}
-  namespace: {{ if .Values.database.namespace }} {{ .Values.database.namespace }} {{ else }} {{ .Release.Namespace }} {{ end }}
 subjects:
   - kind: ServiceAccount
     name: {{ .Values.database.name }}
+    namespace: {{ if .Values.database.namespace }} {{ .Values.database.namespace }} {{ else }} {{ .Release.Namespace }} {{ end }}
 roleRef:
-  kind: Role
+  kind: ClusterRole
   name: {{ .Values.database.name }}
   apiGroup: rbac.authorization.k8s.io
